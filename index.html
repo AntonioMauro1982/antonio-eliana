@@ -289,7 +289,7 @@
   .place-card a { font-family: 'Cormorant SC', serif; font-size: 14px; color: #4a7a4a; text-decoration: none; }
   .place-card a:hover { text-decoration: underline; }
 
-  .nozze-box { background: #ffffff; border: 1px solid #d0e8d0; border-radius: 14px; padding: 2rem 1.5rem; text-align: center; }
+  .nozze-box { background: #ffffff; border: 1px solid #d0e8d0; border-radius: 14px; padding: 2rem 1.5rem; text-align: center; box-sizing: border-box; overflow-x: hidden; }
   .parking-note { background: #ffffff; border: 1px solid #d0e8d0; border-radius: 14px; padding: 1.4rem 1.6rem; text-align: center; margin-top: 1.4rem; }
   .parking-note p { font-size: 17px; color: #5a7a5a; line-height: 1.8; font-weight: 300; }
   .parking-note .park-icon { font-size: 24px; margin-bottom: 8px; display: block; }
@@ -297,8 +297,8 @@
   .nozze-box p { font-size: 18px; color: #5a7a5a; line-height: 1.9; margin-bottom: 1.2rem; font-weight: 300; }
   .iban-label { font-family: 'Cormorant SC', serif; font-size: 14px; letter-spacing: 2px; color: #5a9a5a; margin-bottom: 6px; font-weight: 400; display: block; }
   .iban-intestato { font-size: 17px; color: #5a7a5a; margin-bottom: 10px; font-weight: 300; font-style: italic; display: block; }
-  .iban-row { display: flex; align-items: center; justify-content: center; gap: 10px; background: #f4f7f3; border: 1px solid #d0e8d0; border-radius: 10px; padding: 10px 14px; }
-  .iban-code { font-size: 15px; color: #3d5a3d; letter-spacing: 1px; font-family: monospace; }
+  .iban-row { display: flex; align-items: center; justify-content: center; gap: 10px; background: #f4f7f3; border: 1px solid #d0e8d0; border-radius: 10px; padding: 10px 14px; flex-wrap: wrap; max-width: 100%; box-sizing: border-box; }
+  .iban-code { font-size: 15px; color: #3d5a3d; letter-spacing: 1px; font-family: monospace; word-break: break-all; min-width: 0; }
 
   .btn-copy { background: #4a7a4a; color: #ffffff; border: none; border-radius: 7px; padding: 7px 16px; font-family: 'Cormorant SC', serif; font-size: 15px; letter-spacing: 2px; cursor: pointer; font-weight: 400; transition: background 0.2s; white-space: nowrap; flex-shrink: 0; }
   .btn-copy:hover { background: #3a6a3a; }
