@@ -796,7 +796,12 @@ function clearRoomChoice() {
 }
 
 function checkRoomReservation() {
-  const name = document.getElementById('rsvp-name').value.trim();
+
+  const name = document
+    .getElementById('rsvp-name')
+    .value
+    .trim();
+
   const roomQuestion = document.getElementById('room-question');
   const roomChecking = document.getElementById('room-checking');
 
@@ -806,26 +811,19 @@ function checkRoomReservation() {
     return;
   }
 
-  roomChecking.classList.add('show');
-  roomQuestion.classList.remove('show');
+  roomChecking.classList.remove('show');
 
-  const url = RSVP_ENDPOINT_URL + '?exactName=' + encodeURIComponent(name);
-  fetch(url)
-    .then(function(response) { return response.json(); })
-    .then(function(result) {
-      roomChecking.classList.remove('show');
-      if (result && result.trovato && result.stanzaRiservata) {
-        roomQuestion.classList.add('show');
-      } else {
-        roomQuestion.classList.remove('show');
-        clearRoomChoice();
-      }
-    })
-    .catch(function(err) {
-      console.error('Errore controllo stanza riservata:', err);
-      roomChecking.classList.remove('show');
-      roomQuestion.classList.remove('show');
-    });
+  const hasRoom =
+    guestsRoomMap[
+      name.toLowerCase()
+    ] === true;
+
+  if (hasRoom) {
+    roomQuestion.classList.add('show');
+  } else {
+    roomQuestion.classList.remove('show');
+    clearRoomChoice();
+  }
 }
 
 const RSVP_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwnedh34l-KZGkkqI-orjbCBb0AX4y9ZwEriZkg8R9vI-RXcDEV0AukllH7lilbHOb-Fg/exec";
@@ -837,6 +835,7 @@ const autocompleteCache = {};
 
 let autocompleteAllNames = [];
 let autocompleteLoaded = false;
+let guestsRoomMap = {};  
 
 let autocompleteBaseQuery = null;
 let autocompleteBaseResults = [];
@@ -847,9 +846,20 @@ function loadAutocompleteNames() {
     .then(function(response) {
       return response.json();
     })
-    .then(function(names) {
+    .then(function(guests) {
 
-      autocompleteAllNames = names || [];
+      guests = guests || [];
+
+      autocompleteAllNames = guests.map(function(g) {
+       return g.nome.toString();
+      });
+
+      guests.forEach(function(g) {
+        guestsRoomMap[
+          g.nome.toLowerCase().trim()
+        ] = g.stanza;
+      });
+
       autocompleteLoaded = true;
 
       console.log(
