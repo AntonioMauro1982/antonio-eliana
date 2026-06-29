@@ -878,7 +878,7 @@ function setupAutocomplete() {
     // altrimenti piccolissimo debounce per non sovraccaricare durante la digitazione veloce
     autocompleteDebounce = setTimeout(function() {
       fetchAutocomplete(query);
-    }, 60);
+    }, 300);
   });
 
   input.addEventListener('keydown', function(e) {
@@ -982,7 +982,6 @@ function selectAutocompleteItem(name) {
 }
 
 document.addEventListener('DOMContentLoaded', setupAutocomplete);
-setupAutocomplete();
 
 function submitRSVP() {
   const name = document.getElementById('rsvp-name').value.trim();
