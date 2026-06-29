@@ -832,10 +832,40 @@ const RSVP_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwnedh34l-KZG
 
 let autocompleteDebounce = null;
 let autocompleteActiveIndex = -1;
+
 const autocompleteCache = {};
-let autocompleteRequestId = 0;
+
+let autocompleteAllNames = [];
+let autocompleteLoaded = false;
+
 let autocompleteBaseQuery = null;
 let autocompleteBaseResults = [];
+
+function loadAutocompleteNames() {
+
+  fetch(RSVP_ENDPOINT_URL + '?all=1')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(names) {
+
+      autocompleteAllNames = names || [];
+      autocompleteLoaded = true;
+
+      console.log(
+        "Invitati caricati:",
+        autocompleteAllNames.length
+      );
+
+    })
+    .catch(function(error) {
+      console.error(
+        "Errore caricamento invitati:",
+        error
+      );
+    });
+}
+  
 
 function setupAutocomplete() {
   const input = document.getElementById('rsvp-name');
@@ -874,12 +904,35 @@ function setupAutocomplete() {
       return;
     }
 
-    // Nuova ricerca: chiamata immediata (no debounce) solo se non c'è già una richiesta in corso,
-    // altrimenti piccolissimo debounce per non sovraccaricare durante la digitazione veloce
-    autocompleteDebounce = setTimeout(function() {
-      fetchAutocomplete(query);
-    }, 300);
-  });
+autocompleteDebounce = setTimeout(function() {
+
+  if (!autocompleteLoaded) {
+    return;
+  }
+
+
+  const results = autocompleteAllNames
+    .filter(function(nome) {
+
+      return nome
+        .toString()
+        .toLowerCase()
+        .includes(queryKey);
+
+    })
+    .slice(0,200);
+
+
+  autocompleteCache[queryKey] = results;
+
+  autocompleteBaseQuery = queryKey;
+  autocompleteBaseResults = results;
+
+  renderAutocomplete(results);
+
+
+}, 150);
+});
 
   input.addEventListener('keydown', function(e) {
     const items = list.querySelectorAll('.autocomplete-item');
@@ -916,37 +969,6 @@ function highlightAutocomplete(items) {
   });
 }
 
-function fetchAutocomplete(query) {
-  const queryKey = query.toLowerCase();
-  const thisRequestId = ++autocompleteRequestId;
-  const url = RSVP_ENDPOINT_URL + '?search=' + encodeURIComponent(query);
-
-  showAutocompleteLoading();
-
-  fetch(url)
-    .then(function(response) { return response.json(); })
-    .then(function(results) {
-      const safeResults = results || [];
-      autocompleteCache[queryKey] = safeResults;
-      // Salva come base per filtrare istantaneamente le digitazioni successive più specifiche
-      autocompleteBaseQuery = queryKey;
-      autocompleteBaseResults = safeResults;
-      // Ignora risposte arrivate fuori ordine (richieste più vecchie che tornano dopo)
-      if (thisRequestId === autocompleteRequestId) {
-        renderAutocomplete(safeResults);
-      }
-    })
-    .catch(function(err) {
-      console.error('Errore autocomplete:', err);
-    });
-}
-
-function showAutocompleteLoading() {
-  const list = document.getElementById('autocomplete-list');
-  list.innerHTML = '<div class="autocomplete-loading">Cerco&hellip;</div>';
-  list.classList.add('show');
-}
-
 function renderAutocomplete(results) {
   const list = document.getElementById('autocomplete-list');
   list.innerHTML = '';
@@ -981,7 +1003,12 @@ function selectAutocompleteItem(name) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', setupAutocomplete);
+document.addEventListener('DOMContentLoaded', function() {
+
+  loadAutocompleteNames();
+  setupAutocomplete();
+
+});
 
 function submitRSVP() {
   const name = document.getElementById('rsvp-name').value.trim();
